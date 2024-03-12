@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  userservice:
+    build: ./UserService
+    environment:
+      FLASK_APP: app/__init__.py
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: userdb
+      DATABASE_PORT: 5432
+      DATABASE_NAME: mydatabase
+    volumes:
+      - ./private_key.pem:/app/private_key.pem
+    ports:
+      - "5001:5001"
+    depends_on:
+      - userdb
+
+  userdb:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    
+  taskservice:
+    build: ./TaskService
+    environment:
+      FLASK_APP: app/__init__.py
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+      DATABASE_HOST: taskdb
+      DATABASE_PORT: 5432
+      DATABASE_NAME: taskdatabase
+    volumes:
+      - ./public_key.pem:/app/public_key.pem
+    ports:
+      - "5002:5002"
+    depends_on:
+      - taskdb
+
+  taskdb:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: taskdatabase
