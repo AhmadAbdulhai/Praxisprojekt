@@ -1,7 +1,20 @@
 version: '3.8'
+
 services:
+  api-gateway:
+    image: traefik:v2.4
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker.swarmMode=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  
   userservice:
-    build: ./UserService
+    image: userservice:latest
     environment:
       FLASK_APP: app/__init__.py
       DATABASE_USER: user
@@ -11,10 +24,11 @@ services:
       DATABASE_NAME: mydatabase
     volumes:
       - ./private_key.pem:/app/private_key.pem
-    ports:
-      - "5001:5001"
-    depends_on:
-      - userdb
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.http.routers.userservice.rule=PathPrefix(`/auth/`)"
+        - "traefik.http.services.userservice.loadbalancer.server.port=5001"
 
   userdb:
     image: postgres
@@ -22,9 +36,12 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: mydatabase
-    
+    volumes:
+      - userdb_data:/var/lib/postgresql/data
+
+
   taskservice:
-    build: ./TaskService
+    image: taskservice:latest
     environment:
       FLASK_APP: app/__init__.py
       DATABASE_USER: user
@@ -34,10 +51,11 @@ services:
       DATABASE_NAME: taskdatabase
     volumes:
       - ./public_key.pem:/app/public_key.pem
-    ports:
-      - "5002:5002"
-    depends_on:
-      - taskdb
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.http.routers.taskservice.rule=PathPrefix(`/task/`)"
+        - "traefik.http.services.taskservice.loadbalancer.server.port=5002"
 
   taskdb:
     image: postgres
@@ -45,3 +63,17 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: taskdatabase
+    volumes:
+      - taskdb_data:/var/lib/postgresql/data
+
+  frontend:
+    image: frontend:latest
+    deploy:
+      replicas: 2
+      labels:
+        - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+        - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+
+volumes:
+  userdb_data:
+  taskdb_data:

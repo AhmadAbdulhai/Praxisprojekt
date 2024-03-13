@@ -1,0 +1,27 @@
+meine-tasklist-app/
+├── public/
+│   └── index.html
+├── src/
+│   ├── api/
+│   │   └── tasks.js
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── Header.js
+│   │   │   └── Footer.js
+│   │   ├── auth/
+│   │   │   ├── LoginForm.js
+│   │   │   └── RegisterForm.js
+│   │   └── tasks/
+│   │       ├── TaskList.js
+│   │       ├── TaskItem.js
+│   │       └── TaskForm.js
+│   ├── pages/
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   ├── TaskPage.js
+│   ├── App.js
+│   ├── index.js
+│   └── routes.js
+├── .env
+├── package.json
+└── README.md

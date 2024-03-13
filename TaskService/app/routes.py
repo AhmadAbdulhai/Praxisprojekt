@@ -28,9 +28,15 @@ def get_tasks(current_user):
     tasks = Task.query.filter_by(user_id=current_user).all()
     output = []
     for task in tasks:
-        task_data = {'title': task.title, 'description': task.description, 'status': task.status}
+        task_data = {
+            'id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'status': task.status
+        }
         output.append(task_data)
     return jsonify({'tasks': output})
+
 
 @bp.route('/tasks/<int:task_id>', methods=['PUT'])
 @token_required
@@ -39,9 +45,13 @@ def update_task(current_user, task_id):
     if not task:
         return jsonify({'message': 'No task found'}), 404
     data = request.get_json()
-    task.title = data['title']
-    task.description = data['description']
-    task.status = data['status']
+    # Überprüfung, ob ein bestimmtes Feld in der Anfrage vorhanden ist und Aktualisierung des entsprechenden Feldes
+    if 'title' in data:
+        task.title = data['title']
+    if 'description' in data:
+        task.description = data['description']
+    if 'status' in data:
+        task.status = data['status']
     db.session.commit()
     return jsonify({'message': 'Task updated successfully'})
 

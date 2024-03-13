@@ -27,6 +27,7 @@ def create_app():
     jwt.init_app(app)
     
     with app.app_context():
+        from .models import Task
         db.create_all()
 
     from .routes import bp as task_bp

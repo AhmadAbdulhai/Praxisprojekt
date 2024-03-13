@@ -34,8 +34,5 @@ def login():
         access_token = create_access_token(identity=user.id)
         
         # Erstellen Sie ein Response-Objekt und fügen Sie das Token zum Header hinzu
-        response = make_response(jsonify({"msg": "Login successful"}), 200)
-        response.headers['Authorization'] = f'Bearer {access_token}'
-        return response
-
+        return jsonify({"msg": "Login successful", "access_token": access_token}), 200
     return jsonify({"msg": "Bad username or password"}), 401
